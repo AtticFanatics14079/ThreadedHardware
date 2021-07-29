@@ -1,0 +1,3 @@
+include ':ThreadedHardware'
+include ':FtcRobotController'
+include ':TeamCode'

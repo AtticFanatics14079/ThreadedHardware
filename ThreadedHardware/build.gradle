@@ -1,0 +1,7 @@
+// Include common definitions from above.
+apply from: '../build.common.gradle'
+apply from: '../build.dependencies.gradle'
+
+dependencies {
+    implementation project(':FtcRobotController')
+}
