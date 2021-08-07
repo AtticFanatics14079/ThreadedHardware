@@ -1,5 +1,3 @@
-##ThreadedHardware
-
 This is a library allowing multithreading on hardware (motors, servos, etc.) despite the limit to one active thread at a time in the expansion and control hubs.
 
 In addition, the library comes with a few features that utilize this capability, such as the Sequence class, which allows for a sequence of actions to occur on another thread while the main thread loops.
