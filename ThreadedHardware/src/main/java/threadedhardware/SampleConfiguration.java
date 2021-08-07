@@ -12,6 +12,8 @@ public class SampleConfiguration implements Configuration {
 
     public ThreadedMotor backLeft, frontLeft, frontRight, backRight;
 
+    public ThreadedIMU imu;
+
     public void Configure(HardwareMap hwMap){
         //Create all hardware objects here.
 
@@ -24,6 +26,7 @@ public class SampleConfiguration implements Configuration {
         frontLeft = new ThreadedMotor(hwMap, "front_left_motor");
         frontRight = new ThreadedMotor(hwMap, "front_right_motor");
         backRight = new ThreadedMotor(hwMap, "back_right_motor");
+        imu = new ThreadedIMU(hwMap); //Defaults to the name "imu", which is default in the hub configuration. There's another constructor that takes a name if your IMU is named differently.
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -32,6 +35,11 @@ public class SampleConfiguration implements Configuration {
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         frontRight.reverse(true);
         backRight.reverse(true);

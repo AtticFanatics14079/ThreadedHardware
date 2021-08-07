@@ -23,7 +23,7 @@ public class SampleTeleOp extends LinearOpMode {
             hardware.start();
             configureSequences();
             waitForStart();
-            t.start();
+            //t.start();
             while(!isStopRequested()){
                 //Hardware is only updated every cycle, so calling .waitForCycle() in your loop will prevent repeated calculations using the same values.
                 hardware.waitForCycle();
