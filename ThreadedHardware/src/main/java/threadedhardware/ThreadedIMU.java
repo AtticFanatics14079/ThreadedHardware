@@ -65,6 +65,8 @@ public class ThreadedIMU implements Sensor, BNO055IMU {
     }
 
     public void getHardware() {
+        if(!gettingInput) return;
+
         hardwareVals = new double[]{calculateOffset(imu.getAngularOrientation().firstAngle), imu.getAngularOrientation().secondAngle, imu.getAngularOrientation().thirdAngle};
 
         updateHardware = !updateHardware;

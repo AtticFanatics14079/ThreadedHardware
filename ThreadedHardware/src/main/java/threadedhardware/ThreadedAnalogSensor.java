@@ -11,7 +11,8 @@
 
      private InterpretVoltage interpret;
 
-     private double maxVolt;
+     //Passed into InterpretVoltage to help with calculations, notably for offsetting.
+     private double helperValue;
 
      //Array holding all the hardware inputs.
      private double[] hardwareVals;
@@ -23,21 +24,20 @@
          sensor = hwMap.get(AnalogInput.class, objectName);
          this.partNum = hardware.size();
          interpret = method;
-         maxVolt = getMaxVoltage();
          hardware.add(this);
      }
 
-     public ThreadedAnalogSensor(HardwareMap hwMap, String objectName, double maxVoltage, InterpretVoltage method) {
+     public ThreadedAnalogSensor(HardwareMap hwMap, String objectName, double helperValue, InterpretVoltage method) {
          sensor = hwMap.get(AnalogInput.class, objectName);
          this.partNum = hardware.size();
          interpret = method;
-         maxVolt = maxVoltage;
+         this.helperValue = helperValue;
          hardware.add(this);
      }
 
      public interface InterpretVoltage {
          //Does something with the raw voltage ("voltage"), can use the max voltage of the sensor ("maxVoltage") to help.
-         double interpret(double voltage, double maxVoltage);
+         double interpret(double voltage, double helperValue);
      }
 
      @Override
@@ -46,7 +46,11 @@
      }
 
      public double getMaxVoltage() {
-         return sensor.getMaxVoltage();
+         return helperValue;
+     }
+
+     public double setMaxVoltage() {
+         return helperValue;
      }
 
      @Override
@@ -62,7 +66,7 @@
      @Override
      public void getHardware() {
          double input = sensor.getVoltage();
-         hardwareVals = new double[]{interpret.interpret(input, maxVolt), input};
+         hardwareVals = new double[]{interpret.interpret(input, helperValue), input};
 
          updateHardware = !updateHardware;
      }
