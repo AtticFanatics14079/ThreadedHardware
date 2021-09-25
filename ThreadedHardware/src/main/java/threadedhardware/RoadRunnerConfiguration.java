@@ -3,8 +3,8 @@
 /*
  * Simple mecanum drive hardware implementation for REV hardware.
  */
-
-/*import androidx.annotation.NonNull;
+/*
+import androidx.annotation.NonNull;
 
 //Like all the other RoadRunner stuff, CHANGE THESE IMPORT STATEMENTS to match your programs.
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -34,7 +34,9 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.teamcode.Autonomous.RoadRunner.DriveConstants;
-import org.firstinspires.ftc.teamcode.Autonomous.RoadRunner.DriveObjectTrackingWheelLocalizer;
+
+import threadedhardware.ThreadedHardware;
+import threadedhardware.ThreadedTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.Utils.DashboardUtil;
 import org.firstinspires.ftc.teamcode.Utils.LynxModuleUtil;
 
@@ -42,11 +44,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.firstinspires.ftc.teamcode.Autonomous.RoadRunner.DriveConstants.BASE_CONSTRAINTS;
-import static org.firstinspires.ftc.teamcode.Autonomous.RoadRunner.DriveConstants.MOTOR_VELO_PID;
-import static org.firstinspires.ftc.teamcode.Autonomous.RoadRunner.DriveConstants.RUN_USING_ENCODER;
-import static org.firstinspires.ftc.teamcode.Autonomous.RoadRunner.DriveConstants.TRACK_WIDTH;
-import static org.firstinspires.ftc.teamcode.Autonomous.RoadRunner.DriveConstants.encoderTicksToInches;
+import threadedhardware.Configuration;
+import threadedhardware.ThreadedIMU;
+import threadedhardware.ThreadedMotor;
+
+import static org.firstinspires.ftc.teamcode.RoadRunner.DriveConstants.BASE_CONSTRAINTS;
+import static org.firstinspires.ftc.teamcode.RoadRunner.DriveConstants.MOTOR_VELO_PID;
+import static org.firstinspires.ftc.teamcode.RoadRunner.DriveConstants.RUN_USING_ENCODER;
+import static org.firstinspires.ftc.teamcode.RoadRunner.DriveConstants.TRACK_WIDTH;
+import static org.firstinspires.ftc.teamcode.RoadRunner.DriveConstants.encoderTicksToInches;
 
 @Config
 public class RoadRunnerConfiguration extends MecanumDrive implements Configuration {
@@ -79,10 +85,10 @@ public class RoadRunnerConfiguration extends MecanumDrive implements Configurati
 
     private Pose2d lastPoseOnTurn;
 
-    public DMotor leftFront, leftRear, rightRear, rightFront;
-    public List<DMotor> motors;
+    public ThreadedMotor leftFront, leftRear, rightRear, rightFront;
+    public List<ThreadedMotor> motors;
     private List<LynxModule> allHubs;
-    public DIMU imu;
+    public ThreadedIMU imu;
     private VoltageSensor batteryVoltageSensor;
 
     //Separated constructor and "Configure" method.
@@ -116,18 +122,18 @@ public class RoadRunnerConfiguration extends MecanumDrive implements Configurati
 
         hardware.clear();
 
-        leftFront = new DMotor(hwMap, "front_left_motor");
-        leftRear = new DMotor(hwMap, "back_left_motor");
-        rightRear = new DMotor(hwMap, "back_right_motor");
-        rightFront = new DMotor(hwMap, "front_right_motor");
-        imu = new DIMU(hwMap);
+        leftFront = new ThreadedMotor(hwMap, "front_left_motor");
+        leftRear = new ThreadedMotor(hwMap, "back_left_motor");
+        rightRear = new ThreadedMotor(hwMap, "back_right_motor");
+        rightFront = new ThreadedMotor(hwMap, "front_right_motor");
+        imu = new ThreadedIMU(hwMap);
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
         // TODO: if your hub is mounted vertically, remap the IMU axes so that the z-axis points
         // upward (normal to the floor) using a command like the following:
         // BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
 
-        for (DMotor motor : motors) {
+        for (ThreadedMotor motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
             motorConfigurationType.setAchieveableMaxRPMFraction(1.0);
             motor.setMotorType(motorConfigurationType);
@@ -147,8 +153,7 @@ public class RoadRunnerConfiguration extends MecanumDrive implements Configurati
         motors.get(0).reverse(true);
         motors.get(1).reverse(true);
 
-        // TODO: if desired, use setLocalizer() to change the localization method
-        setLocalizer(new DriveObjectTrackingWheelLocalizer(hwMap));
+        // TODO: if desired, use setLocalizer() to change the localization method.
     }
 
     public void setBulkCachingManual(boolean manual){
@@ -193,7 +198,7 @@ public class RoadRunnerConfiguration extends MecanumDrive implements Configurati
         );
 
         turnStart = clock.seconds();
-        mode = org.firstinspires.ftc.teamcode.JONSKETCH.DriveObjectV2.RoadRunnerConfiguration.Mode.TURN;
+        mode = Mode.TURN;
     }
 
     public void turn(double angle) {
@@ -271,7 +276,7 @@ public class RoadRunnerConfiguration extends MecanumDrive implements Configurati
                 DashboardUtil.drawRobot(fieldOverlay, newPose);
 
                 if (t >= turnProfile.duration()) {
-                    mode = org.firstinspires.ftc.teamcode.JONSKETCH.DriveObjectV2.RoadRunnerConfiguration.Mode.IDLE;
+                    mode = Mode.IDLE;
                     setDriveSignal(new DriveSignal());
                 }
 
@@ -292,7 +297,7 @@ public class RoadRunnerConfiguration extends MecanumDrive implements Configurati
                 DashboardUtil.drawPoseHistory(fieldOverlay, poseHistory);
 
                 if (!follower.isFollowing()) {
-                    mode = org.firstinspires.ftc.teamcode.JONSKETCH.DriveObjectV2.RoadRunnerConfiguration.Mode.IDLE;
+                    mode = Mode.IDLE;
                     setDriveSignal(new DriveSignal());
                 }
 
@@ -318,13 +323,13 @@ public class RoadRunnerConfiguration extends MecanumDrive implements Configurati
 
     //Need to fix these at some point
     public void setMode(DcMotor.RunMode runMode) {
-        for (DMotor motor : motors) {
+        for (ThreadedMotor motor : motors) {
             motor.setMode(runMode);
         }
     }
 
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
-        for (DMotor motor : motors) {
+        for (ThreadedMotor motor : motors) {
             motor.setZeroPowerBehavior(zeroPowerBehavior);
         }
     }
@@ -336,8 +341,8 @@ public class RoadRunnerConfiguration extends MecanumDrive implements Configurati
     }
 
     public void setPIDFCoefficients(PIDFCoefficients coefficients) { //Removed DcMotor.RunMode runMode
-        for (DMotor motor : motors) {
-            motor.setInternalPID(coefficients.p, coefficients.p, coefficients.d, coefficients.f * 12 / batteryVoltageSensor.getVoltage());
+        for (ThreadedMotor motor : motors) {
+            motor.setPID(coefficients);
         }
     }
 
@@ -345,7 +350,7 @@ public class RoadRunnerConfiguration extends MecanumDrive implements Configurati
     @Override
     public List<Double> getWheelPositions() {
         List<Double> wheelPositions = new ArrayList<>();
-        for (DriveObject motor : motors) {
+        for (ThreadedHardware motor : motors) {
             wheelPositions.add(encoderTicksToInches(motor.get()[1]));
         }
         return wheelPositions;
@@ -353,7 +358,7 @@ public class RoadRunnerConfiguration extends MecanumDrive implements Configurati
 
     public List<Double> getWheelVelocities() {
         List<Double> wheelVelocities = new ArrayList<>();
-        for (DriveObject motor : motors) {
+        for (ThreadedHardware motor : motors) {
             wheelVelocities.add(encoderTicksToInches(motor.get()[0]));
         }
         return wheelVelocities;

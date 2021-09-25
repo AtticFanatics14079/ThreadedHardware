@@ -171,10 +171,18 @@ public class ThreadedMotor implements Active, DcMotor {
         return (int) get()[1];
     }
 
-    public void setInternalPID(double... pid) {
+    public void setPID(double... pid) {
         motor.setPIDFCoefficients(RunMode.RUN_USING_ENCODER, new PIDFCoefficients(
                 pid[0], pid[1], pid[2], pid[3]
         ));
+    }
+
+    public void setPID(PIDFCoefficients pid) {
+        motor.setPIDFCoefficients(RunMode.RUN_USING_ENCODER, pid);
+    }
+
+    public PIDFCoefficients getPID(RunMode mode) {
+        return motor.getPIDFCoefficients(mode);
     }
 
     public void reverse(boolean reverse) {
