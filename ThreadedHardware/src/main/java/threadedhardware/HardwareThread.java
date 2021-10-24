@@ -9,7 +9,7 @@ public class HardwareThread extends Thread implements Hardware {
     ElapsedTime time;
     double[] lastRun; //Previous run values.
     public Configuration config;
-    private volatile boolean stop = false, resetIMU = false;
+    private volatile boolean stop = false;
 
     private static final Double sync = 0.0;
 
@@ -50,6 +50,7 @@ public class HardwareThread extends Thread implements Hardware {
         config.clearBulkCache();
 
         for(ThreadedHardware d : hardware) {
+            //Interface method that gets motor power, motor encoder position, gyroscope position, etc. depending on the hardware device.
             d.getHardware();
         }
     }
@@ -63,7 +64,7 @@ public class HardwareThread extends Thread implements Hardware {
                 ((Active) d).setHardware();
                 lastRun[i] = val;
             }
-            //instanceof and typecasting allows for sensors to not include setHardware.
+            //instanceof and typecasting allows for sensors to not include setHardware, as there's nothing to be set on the sensor.
         }
     }
 

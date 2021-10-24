@@ -32,13 +32,9 @@ public class ThreadedMotor implements Active, DcMotor {
         hardware.add(this);
     }
 
-    //Constructors
-
-
-
     //Interface methods
 
-    public void set(double velocity) {
+    public synchronized void set(double velocity) {
         runVal = velocity;
     }
 
@@ -61,7 +57,6 @@ public class ThreadedMotor implements Active, DcMotor {
 
     public void getHardware() {
         hardwareVals = new double[]{motor.getVelocity(), (double) motor.getCurrentPosition()};
-
         updateHardware = !updateHardware;
     }
 

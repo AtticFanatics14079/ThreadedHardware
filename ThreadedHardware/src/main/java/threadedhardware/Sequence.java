@@ -6,8 +6,6 @@ public class Sequence implements Runnable {
     private volatile Condition condition = null;
     private Sequence sequence;
 
-    private volatile boolean conditionFinished = false;
-
     public interface Action extends Runnable{
         void run();
     }
@@ -33,10 +31,7 @@ public class Sequence implements Runnable {
     }
 
     public void run(){
-        if(sequence != null) {
-            sequence.run();
-        }
-
+        if(sequence != null) { sequence.run(); }
         //Runs condition first
         Thread actionThread = new Thread(action);
         Thread conditionThread = null;

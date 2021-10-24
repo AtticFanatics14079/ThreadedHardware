@@ -29,7 +29,7 @@ public class ThreadedServo implements Active {
 
     //Interface methods
 
-    public void set(double position) {
+    public synchronized void set(double position) {
         runVal = position;
     }
 
